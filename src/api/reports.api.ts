@@ -1,0 +1,2 @@
+import { api } from './client';
+export const reportsApi = { inventory:(q?:Record<string,string|number|undefined>)=>api.get('/reports/inventory',q), sales:(q?:Record<string,string|number|undefined>)=>api.get('/reports/sales',q), rentals:(q?:Record<string,string|number|undefined>)=>api.get('/reports/rentals',q), financial:(q?:Record<string,string|number|undefined>)=>api.get('/reports/financial',q), transfers:(q?:Record<string,string|number|undefined>)=>api.get('/reports/transfers',q), activity:(q?:Record<string,string|number|undefined>)=>api.get('/reports/activity',q) };
