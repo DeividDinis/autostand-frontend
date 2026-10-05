@@ -46,7 +46,8 @@ export function isOfflineMode(): boolean {
 export function offlineLogin(email: string, password: string) {
   const credential = OFFLINE_CREDENTIALS.find(
     (item) =>
-      item.email.toLowerCase() === email.trim().toLowerCase() && item.password === password,
+      item.email.toLowerCase() === email.trim().toLowerCase() &&
+      item.password === password
   );
 
   if (!credential) throw new Error('Credenciais offline inválidas.');
@@ -64,7 +65,8 @@ export function offlineLogin(email: string, password: string) {
 }
 
 export function offlineMe(token: string | null): AuthUser {
-  if (!token?.startsWith('offline-token-')) throw new Error('Sessão offline inválida.');
+  if (!token?.startsWith('offline-token-'))
+    throw new Error('Sessão offline inválida.');
 
   const id = Number(token.replace('offline-token-', ''));
   const credential = OFFLINE_CREDENTIALS[id - 1];

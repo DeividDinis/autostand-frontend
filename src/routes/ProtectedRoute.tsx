@@ -3,16 +3,23 @@ import { useAuth } from '../contexts/AuthContext';
 
 export function ProtectedRoute() {
   const { user, loading } = useAuth();
-  if (loading) return <div className="grid min-h-screen place-items-center bg-slate-50 text-slate-500">A validar sessão...</div>;
+  if (loading)
+    return (
+      <div className="grid min-h-screen place-items-center bg-slate-50 text-slate-500">
+        A validar sessão...
+      </div>
+    );
   return user ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 export function RoleRoute({ roles }: { roles: string[] }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  return roles.includes(user.role)
-    ? <Outlet />
-    : <Navigate to={user.role === 'CLIENTE' ? '/portal' : '/dashboard'} replace />;
+  return roles.includes(user.role) ? (
+    <Outlet />
+  ) : (
+    <Navigate to={user.role === 'CLIENTE' ? '/portal' : '/dashboard'} replace />
+  );
 }
 
 export function StaffRoute() {

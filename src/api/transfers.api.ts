@@ -1,2 +1,13 @@
-import { api } from './client'; import type { Transfer } from '../types/domain';
-export const transfersApi = { list:(query?:Record<string,string|number|undefined>)=>api.get<{data:Transfer[];total?:number}>('/transfers',query), get:(id:number)=>api.get<Transfer>(`/transfers/${id}`), create:(body:Partial<Transfer>)=>api.post<Transfer>('/transfers',body), approve:(id:number)=>api.post<Transfer>(`/transfers/${id}/approve`), reject:(id:number,body:{notes:string})=>api.post<Transfer>(`/transfers/${id}/reject`,body), complete:(id:number)=>api.post<Transfer>(`/transfers/${id}/complete`), cancel:(id:number)=>api.post<Transfer>(`/transfers/${id}/cancel`) };
+import { api } from './client';
+import type { Transfer } from '../types/domain';
+export const transfersApi = {
+  list: (query?: Record<string, string | number | undefined>) =>
+    api.get<{ data: Transfer[]; total?: number }>('/transfers', query),
+  get: (id: number) => api.get<Transfer>(`/transfers/${id}`),
+  create: (body: Partial<Transfer>) => api.post<Transfer>('/transfers', body),
+  approve: (id: number) => api.post<Transfer>(`/transfers/${id}/approve`),
+  reject: (id: number, body: { notes: string }) =>
+    api.post<Transfer>(`/transfers/${id}/reject`, body),
+  complete: (id: number) => api.post<Transfer>(`/transfers/${id}/complete`),
+  cancel: (id: number) => api.post<Transfer>(`/transfers/${id}/cancel`),
+};

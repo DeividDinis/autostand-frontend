@@ -10,7 +10,10 @@ export type AuthLoginResponse = {
 };
 
 export const authApi = {
-  async login(body: { email: string; password: string }): Promise<AuthLoginResponse> {
+  async login(body: {
+    email: string;
+    password: string;
+  }): Promise<AuthLoginResponse> {
     if (isOfflineMode()) return offlineLogin(body.email, body.password);
     return api.post<AuthLoginResponse>('/auth/login', body);
   },

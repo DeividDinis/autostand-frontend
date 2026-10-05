@@ -1,2 +1,72 @@
-import { useEffect, useState } from 'react'; import { Eye } from 'lucide-react'; import { auditApi } from '../api/audit.api'; import { PageHeader } from '../components/PageHeader'; import { DataTable, type Column } from '../components/DataTable'; import { Badge } from '../components/Badge'; import { ErrorState } from '../components/StateView'; import { date } from '../utils/format'; import type { AuditLog } from '../types/domain'; import { useNavigate } from 'react-router-dom';
-export function AuditPage(){const nav=useNavigate();const [rows,setRows]=useState<AuditLog[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState('');const load=()=>{setLoading(true);auditApi.list({page:1,limit:25}).then(r=>setRows(r.data||[])).catch(e=>setError(e.message)).finally(()=>setLoading(false))};useEffect(load,[]);const cols:Column<AuditLog>[]=[{key:'createdAt',header:'Data',render:r=>date(r.createdAt)},{key:'user',header:'Utilizador',render:r=>r.user?.name||r.userId},{key:'action',header:'Ação'},{key:'method',header:'Método',render:r=><Badge value={r.method}/>},{key:'endpoint',header:'Endpoint'},{key:'status',header:'Status',render:r=><Badge value={String(r.status)}/>},{key:'entity',header:'Entidade'},{key:'actions',header:'',render:r=><button onClick={()=>nav(`/audit/${r.id}`)} className="rounded-lg p-2 hover:bg-slate-100"><Eye size={16}/></button>}];return <><PageHeader title="Auditoria" subtitle="Rastreabilidade de operações e chamadas da API"/><DataTable columns={cols} rows={rows} loading={loading}/>{error&&<div className="mt-4"><ErrorState text={error} retry={load}/></div>}</>}
+import { useEffect, useState } from 'react';
+import { Eye } from 'lucide-react';
+import { auditApi } from '../api/audit.api';
+import { PageHeader } from '../components/PageHeader';
+import { DataTable, type Column } from '../components/DataTable';
+import { Badge } from '../components/Badge';
+import { ErrorState } from '../components/StateView';
+import { date } from '../utils/format';
+import type { AuditLog } from '../types/domain';
+import { useNavigate } from 'react-router-dom';
+export function AuditPage() {
+  const nav = useNavigate();
+  const [rows, setRows] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const load = () => {
+    setLoading(true);
+    auditApi
+      .list({ page: 1, limit: 25 })
+      .then((r) => setRows(r.data || []))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  };
+  useEffect(load, []);
+  const cols: Column<AuditLog>[] = [
+    { key: 'createdAt', header: 'Data', render: (r) => date(r.createdAt) },
+    {
+      key: 'user',
+      header: 'Utilizador',
+      render: (r) => r.user?.name || r.userId,
+    },
+    { key: 'action', header: 'Ação' },
+    {
+      key: 'method',
+      header: 'Método',
+      render: (r) => <Badge value={r.method} />,
+    },
+    { key: 'endpoint', header: 'Endpoint' },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (r) => <Badge value={String(r.status)} />,
+    },
+    { key: 'entity', header: 'Entidade' },
+    {
+      key: 'actions',
+      header: '',
+      render: (r) => (
+        <button
+          onClick={() => nav(`/audit/${r.id}`)}
+          className="rounded-lg p-2 hover:bg-slate-100"
+        >
+          <Eye size={16} />
+        </button>
+      ),
+    },
+  ];
+  return (
+    <>
+      <PageHeader
+        title="Auditoria"
+        subtitle="Rastreabilidade de operações e chamadas da API"
+      />
+      <DataTable columns={cols} rows={rows} loading={loading} />
+      {error && (
+        <div className="mt-4">
+          <ErrorState text={error} retry={load} />
+        </div>
+      )}
+    </>
+  );
+}

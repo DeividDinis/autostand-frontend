@@ -8,12 +8,12 @@ O projeto vem com `VITE_OFFLINE_MODE=true` no `.env` para permitir testar a aute
 
 Credenciais:
 
-| Perfil | Email | Palavra-passe |
-|---|---|---|
-| Admin Superior | admin@autostand.local | Admin@123 |
-| Admin da Revendedora | miniadmin@autostand.local | Mini@123 |
-| Gestor Operacional | gestor@autostand.local | Gestor@123 |
-| Cliente Demo | cliente@autostand.local | Cliente@123 |
+| Perfil               | Email                     | Palavra-passe |
+| -------------------- | ------------------------- | ------------- |
+| Admin Superior       | admin@autostand.local     | Admin@123     |
+| Admin da Revendedora | miniadmin@autostand.local | Mini@123      |
+| Gestor Operacional   | gestor@autostand.local    | Gestor@123    |
+| Cliente Demo         | cliente@autostand.local   | Cliente@123   |
 
 Na página de login podes clicar diretamente no perfil para preencher as credenciais.
 
@@ -23,12 +23,11 @@ Para ligar ao backend:
 
 ```env
 VITE_OFFLINE_MODE=false
-VITE_API_URL=http://localhost:3000/api/v1
+VITE_API_URL=http://localhost:3500/api/v1
 VITE_CONTRACT_CREATE_PATH=
 ```
 
 Depois reinicia o Vite.
-
 
 ## Matriz de acesso
 

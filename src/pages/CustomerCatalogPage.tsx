@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CalendarDays, CarFront, Fuel, Gauge, MapPin, Settings2, ShieldCheck } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  CarFront,
+  Fuel,
+  Gauge,
+  MapPin,
+  Settings2,
+  ShieldCheck,
+} from 'lucide-react';
 import { vehiclesApi } from '../api/vehicles.api';
 import { LoadingState, ErrorState } from '../components/StateView';
 import { Badge } from '../components/Badge';
@@ -13,14 +23,24 @@ function placeholderPhoto(label = 'AutoStand') {
 }
 
 function getPhotos(vehicle: Vehicle): string[] {
-  const extended = vehicle as Vehicle & { images?: string[]; photoUrls?: string[] } & Record<string, unknown>;
+  const extended = vehicle as Vehicle & {
+    images?: string[];
+    photoUrls?: string[];
+  } & Record<string, unknown>;
   const raw = [
     ...(Array.isArray(extended.photos) ? extended.photos : []),
     ...(Array.isArray(extended.images) ? extended.images : []),
     ...(Array.isArray(extended.photoUrls) ? extended.photoUrls : []),
-    ...Array.from({ length: 8 }, (_, index) => typeof extended[`photo${index + 1}`] === 'string' ? String(extended[`photo${index + 1}`]) : ''),
+    ...Array.from({ length: 8 }, (_, index) =>
+      typeof extended[`photo${index + 1}`] === 'string'
+        ? String(extended[`photo${index + 1}`])
+        : ''
+    ),
   ].filter(Boolean) as string[];
-  return Array.from({ length: 8 }, (_, index) => raw[index] || placeholderPhoto(`Foto ${index + 1}`));
+  return Array.from(
+    { length: 8 },
+    (_, index) => raw[index] || placeholderPhoto(`Foto ${index + 1}`)
+  );
 }
 
 export function CustomerCatalogPage() {
@@ -32,24 +52,43 @@ export function CustomerCatalogPage() {
   const load = () => {
     setLoading(true);
     setError('');
-    vehiclesApi.listPublicAvailable({ search, page: 1, limit: 24 })
+    vehiclesApi
+      .listPublicAvailable({ search, page: 1, limit: 24 })
       .then((response) => setVehicles(response.data ?? []))
-      .catch((err) => setError(err instanceof Error ? err.message : 'Não foi possível carregar os veículos disponíveis.'))
+      .catch((err) =>
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Não foi possível carregar os veículos disponíveis.'
+        )
+      )
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); }, [search]);
+  useEffect(() => {
+    load();
+  }, [search]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
           <Link to="/" className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-600 font-black text-white">A</div>
-            <div><div className="font-black">AutoStand</div><div className="text-xs text-slate-400">Catálogo de veículos</div></div>
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-600 font-black text-white">
+              A
+            </div>
+            <div>
+              <div className="font-black">AutoStand</div>
+              <div className="text-xs text-slate-400">Catálogo de veículos</div>
+            </div>
           </Link>
           <div className="flex items-center gap-2">
-            <Link to="/login" className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold">Entrar</Link>
+            <Link
+              to="/login"
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold"
+            >
+              Entrar
+            </Link>
           </div>
         </div>
       </header>
@@ -58,22 +97,49 @@ export function CustomerCatalogPage() {
         <section className="border-b border-slate-200 bg-white">
           <div className="mx-auto max-w-7xl px-5 py-12 lg:py-16">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-700"><CarFront size={14} /> Veículos disponíveis</div>
-              <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">Encontra o teu próximo veículo no AutoStand.</h1>
-              <p className="mt-4 text-lg leading-8 text-slate-500">Consulta as viaturas atualmente disponíveis, vê as principais características e abre a ficha completa com oito posições de fotografia.</p>
+              <div className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-700">
+                <CarFront size={14} /> Veículos disponíveis
+              </div>
+              <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">
+                Encontra o teu próximo veículo no AutoStand.
+              </h1>
+              <p className="mt-4 text-lg leading-8 text-slate-500">
+                Consulta as viaturas atualmente disponíveis, vê as principais
+                características e abre a ficha completa com oito posições de
+                fotografia.
+              </p>
             </div>
             <div className="mt-8 max-w-2xl">
-              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Pesquisar por marca, modelo ou matrícula" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 outline-none transition focus:border-red-400 focus:bg-white" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Pesquisar por marca, modelo ou matrícula"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 outline-none transition focus:border-red-400 focus:bg-white"
+              />
             </div>
           </div>
         </section>
 
         <section className="mx-auto max-w-7xl px-5 py-10">
-          {loading ? <LoadingState /> : error ? <ErrorState text={error} retry={load} /> : vehicles.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center"><CarFront className="mx-auto text-slate-300" size={38} /><h2 className="mt-4 text-xl font-bold">Nenhum veículo disponível</h2><p className="mt-2 text-slate-500">Tenta outra pesquisa ou consulta novamente mais tarde.</p></div>
+          {loading ? (
+            <LoadingState />
+          ) : error ? (
+            <ErrorState text={error} retry={load} />
+          ) : vehicles.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+              <CarFront className="mx-auto text-slate-300" size={38} />
+              <h2 className="mt-4 text-xl font-bold">
+                Nenhum veículo disponível
+              </h2>
+              <p className="mt-2 text-slate-500">
+                Tenta outra pesquisa ou consulta novamente mais tarde.
+              </p>
+            </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {vehicles.map((vehicle) => <CatalogCard key={vehicle.id} vehicle={vehicle} />)}
+              {vehicles.map((vehicle) => (
+                <CatalogCard key={vehicle.id} vehicle={vehicle} />
+              ))}
             </div>
           )}
         </section>
@@ -86,22 +152,71 @@ function CatalogCard({ vehicle }: { vehicle: Vehicle }) {
   const photo = getPhotos(vehicle)[0];
   return (
     <article className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-      <img src={photo} alt={`${vehicle.brand} ${vehicle.model}`} className="h-60 w-full object-cover" />
+      <img
+        src={photo}
+        alt={`${vehicle.brand} ${vehicle.model}`}
+        className="h-60 w-full object-cover"
+      />
       <div className="p-5">
-        <div className="flex items-start justify-between gap-3"><div><p className="text-lg font-black">{vehicle.brand} {vehicle.model}</p><p className="mt-1 text-sm text-slate-400">{vehicle.year} · {vehicle.plate}</p></div><Badge value="AVAILABLE" /></div>
-        <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-slate-500">
-          <Stat icon={<Gauge size={15} />} text={vehicle.mileage ? `${vehicle.mileage.toLocaleString('pt-AO')} km` : '—'} />
-          <Stat icon={<Fuel size={15} />} text={labelize(vehicle.fuel)} />
-          <Stat icon={<Settings2 size={15} />} text={labelize(vehicle.transmission)} />
-          <Stat icon={<MapPin size={15} />} text={vehicle.stand?.name || `Stand #${vehicle.standId}`} />
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-lg font-black">
+              {vehicle.brand} {vehicle.model}
+            </p>
+            <p className="mt-1 text-sm text-slate-400">
+              {vehicle.year} · {vehicle.plate}
+            </p>
+          </div>
+          <Badge value="AVAILABLE" />
         </div>
-        <div className="mt-6 flex items-end justify-between gap-3"><div><p className="text-xs uppercase tracking-wide text-slate-400">Preço</p><p className="mt-1 text-xl font-black">{money(vehicle.salePrice)}</p></div><Link to={`/catalog/vehicles/${vehicle.id}`} className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white">Ver detalhes <ArrowRight size={16} /></Link></div>
+        <div className="mt-5 grid grid-cols-2 gap-3 text-sm text-slate-500">
+          <Stat
+            icon={<Gauge size={15} />}
+            text={
+              vehicle.mileage
+                ? `${vehicle.mileage.toLocaleString('pt-AO')} km`
+                : '—'
+            }
+          />
+          <Stat icon={<Fuel size={15} />} text={labelize(vehicle.fuel)} />
+          <Stat
+            icon={<Settings2 size={15} />}
+            text={labelize(vehicle.transmission)}
+          />
+          <Stat
+            icon={<MapPin size={15} />}
+            text={vehicle.stand?.name || `Stand #${vehicle.standId}`}
+          />
+        </div>
+        <div className="mt-6 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-slate-400">
+              Preço
+            </p>
+            <p className="mt-1 text-xl font-black">
+              {money(vehicle.salePrice)}
+            </p>
+          </div>
+          <Link
+            to={`/catalog/vehicles/${vehicle.id}`}
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white"
+          >
+            Ver detalhes <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
     </article>
   );
 }
 
-function Stat({ icon, text }: { icon: React.ReactNode; text: string }) { return <div className="flex min-w-0 items-center gap-2"><span className="text-slate-400">{icon}</span><span className="truncate">{text}</span></div>; }
+function Stat({ icon, text }: { icon: React.ReactNode; text: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2">
+      <span className="text-slate-400">{icon}</span>
+      <span className="truncate">{text}</span>
+    </div>
+  );
+}
 
 export function CustomerVehicleDetailPage() {
   const { id } = useParams();
@@ -114,40 +229,168 @@ export function CustomerVehicleDetailPage() {
   useEffect(() => {
     setLoading(true);
     setError('');
-    vehiclesApi.getPublic(Number(id)).then(setVehicle).catch((err) => setError(err instanceof Error ? err.message : 'Não foi possível carregar o veículo.')).finally(() => setLoading(false));
+    vehiclesApi
+      .getPublic(Number(id))
+      .then(setVehicle)
+      .catch((err) =>
+        setError(
+          err instanceof Error
+            ? err.message
+            : 'Não foi possível carregar o veículo.'
+        )
+      )
+      .finally(() => setLoading(false));
   }, [id]);
 
-  const photos = useMemo(() => vehicle ? getPhotos(vehicle) : [], [vehicle]);
+  const photos = useMemo(() => (vehicle ? getPhotos(vehicle) : []), [vehicle]);
 
-  if (loading) return <div className="min-h-screen bg-slate-50"><LoadingState /></div>;
-  if (error || !vehicle) return <div className="min-h-screen bg-slate-50 px-5 py-12"><ErrorState text={error || 'Veículo não encontrado.'} retry={() => navigate('/catalog')} /></div>;
+  if (loading)
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <LoadingState />
+      </div>
+    );
+  if (error || !vehicle)
+    return (
+      <div className="min-h-screen bg-slate-50 px-5 py-12">
+        <ErrorState
+          text={error || 'Veículo não encontrado.'}
+          retry={() => navigate('/catalog')}
+        />
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
-      <header className="border-b border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4"><Link to="/catalog" className="inline-flex items-center gap-2 text-sm font-semibold"><ArrowLeft size={17} /> Voltar ao catálogo</Link><Link to="/login" className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white">Entrar</Link></div></header>
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4">
+          <Link
+            to="/catalog"
+            className="inline-flex items-center gap-2 text-sm font-semibold"
+          >
+            <ArrowLeft size={17} /> Voltar ao catálogo
+          </Link>
+          <Link
+            to="/login"
+            className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            Entrar
+          </Link>
+        </div>
+      </header>
       <main className="mx-auto max-w-7xl px-5 py-8 lg:py-10">
         <div className="grid gap-8 lg:grid-cols-[1.2fr_.8fr]">
           <section>
-            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"><img src={photos[activePhoto]} alt={`${vehicle.brand} ${vehicle.model} - foto ${activePhoto + 1}`} className="aspect-[16/10] w-full object-cover" /></div>
-            <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-8">{photos.map((src, index) => <button key={src + index} type="button" onClick={() => setActivePhoto(index)} className={`overflow-hidden rounded-xl border-2 bg-white ${activePhoto === index ? 'border-red-600' : 'border-transparent'}`}><img src={src} alt={`Miniatura ${index + 1}`} className="aspect-square w-full object-cover" /></button>)}</div>
+            <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+              <img
+                src={photos[activePhoto]}
+                alt={`${vehicle.brand} ${vehicle.model} - foto ${activePhoto + 1}`}
+                className="aspect-[16/10] w-full object-cover"
+              />
+            </div>
+            <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-8">
+              {photos.map((src, index) => (
+                <button
+                  key={src + index}
+                  type="button"
+                  onClick={() => setActivePhoto(index)}
+                  className={`overflow-hidden rounded-xl border-2 bg-white ${activePhoto === index ? 'border-red-600' : 'border-transparent'}`}
+                >
+                  <img
+                    src={src}
+                    alt={`Miniatura ${index + 1}`}
+                    className="aspect-square w-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
           </section>
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:p-8">
-            <div className="flex items-center justify-between gap-3"><Badge value={vehicle.status} /><span className="text-sm text-slate-400">Veículo #{vehicle.id}</span></div>
-            <h1 className="mt-4 text-3xl font-black">{vehicle.brand} {vehicle.model}</h1>
-            <p className="mt-2 text-slate-500">{vehicle.description || 'Informações do veículo disponíveis no catálogo AutoStand.'}</p>
-            <div className="mt-7 grid gap-4 sm:grid-cols-2">
-              <DetailStat label="Ano" value={String(vehicle.year)} icon={<CalendarDays size={17} />} />
-              <DetailStat label="Matrícula" value={vehicle.plate} icon={<CarFront size={17} />} />
-              <DetailStat label="Quilometragem" value={vehicle.mileage ? `${vehicle.mileage.toLocaleString('pt-AO')} km` : '—'} icon={<Gauge size={17} />} />
-              <DetailStat label="Combustível" value={labelize(vehicle.fuel)} icon={<Fuel size={17} />} />
-              <DetailStat label="Transmissão" value={labelize(vehicle.transmission)} icon={<Settings2 size={17} />} />
-              <DetailStat label="Cor" value={vehicle.color || '—'} icon={<CarFront size={17} />} />
-              <DetailStat label="Stand" value={vehicle.stand?.name || `Stand #${vehicle.standId}`} icon={<MapPin size={17} />} />
-              <DetailStat label="VIN" value={vehicle.vin} icon={<ShieldCheck size={17} />} />
+            <div className="flex items-center justify-between gap-3">
+              <Badge value={vehicle.status} />
+              <span className="text-sm text-slate-400">
+                Veículo #{vehicle.id}
+              </span>
             </div>
-            <div className="mt-8 rounded-2xl bg-slate-50 p-5"><p className="text-xs uppercase tracking-[0.16em] text-slate-400">Preço de venda</p><p className="mt-1 text-3xl font-black">{money(vehicle.salePrice)}</p><p className="mt-2 text-sm text-slate-500">Diária de aluguer: {money(vehicle.rentalDailyRate)}</p></div>
-            <div className="mt-6 flex flex-wrap gap-3"><Link to="/login" className="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white">Entrar na área do cliente</Link><Link to="/catalog" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold">Ver outros veículos</Link></div>
+            <h1 className="mt-4 text-3xl font-black">
+              {vehicle.brand} {vehicle.model}
+            </h1>
+            <p className="mt-2 text-slate-500">
+              {vehicle.description ||
+                'Informações do veículo disponíveis no catálogo AutoStand.'}
+            </p>
+            <div className="mt-7 grid gap-4 sm:grid-cols-2">
+              <DetailStat
+                label="Ano"
+                value={String(vehicle.year)}
+                icon={<CalendarDays size={17} />}
+              />
+              <DetailStat
+                label="Matrícula"
+                value={vehicle.plate}
+                icon={<CarFront size={17} />}
+              />
+              <DetailStat
+                label="Quilometragem"
+                value={
+                  vehicle.mileage
+                    ? `${vehicle.mileage.toLocaleString('pt-AO')} km`
+                    : '—'
+                }
+                icon={<Gauge size={17} />}
+              />
+              <DetailStat
+                label="Combustível"
+                value={labelize(vehicle.fuel)}
+                icon={<Fuel size={17} />}
+              />
+              <DetailStat
+                label="Transmissão"
+                value={labelize(vehicle.transmission)}
+                icon={<Settings2 size={17} />}
+              />
+              <DetailStat
+                label="Cor"
+                value={vehicle.color || '—'}
+                icon={<CarFront size={17} />}
+              />
+              <DetailStat
+                label="Stand"
+                value={vehicle.stand?.name || `Stand #${vehicle.standId}`}
+                icon={<MapPin size={17} />}
+              />
+              <DetailStat
+                label="VIN"
+                value={vehicle.vin}
+                icon={<ShieldCheck size={17} />}
+              />
+            </div>
+            <div className="mt-8 rounded-2xl bg-slate-50 p-5">
+              <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
+                Preço de venda
+              </p>
+              <p className="mt-1 text-3xl font-black">
+                {money(vehicle.salePrice)}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">
+                Diária de aluguer: {money(vehicle.rentalDailyRate)}
+              </p>
+            </div>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/login"
+                className="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white"
+              >
+                Entrar na área do cliente
+              </Link>
+              <Link
+                to="/catalog"
+                className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold"
+              >
+                Ver outros veículos
+              </Link>
+            </div>
           </section>
         </div>
       </main>
@@ -155,4 +398,24 @@ export function CustomerVehicleDetailPage() {
   );
 }
 
-function DetailStat({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) { return <div className="rounded-2xl border border-slate-100 p-4"><div className="flex items-center gap-2 text-slate-400">{icon}<span className="text-xs uppercase tracking-wide">{label}</span></div><p className="mt-2 break-words text-sm font-bold text-slate-800">{value || '—'}</p></div>; }
+function DetailStat({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-100 p-4">
+      <div className="flex items-center gap-2 text-slate-400">
+        {icon}
+        <span className="text-xs uppercase tracking-wide">{label}</span>
+      </div>
+      <p className="mt-2 break-words text-sm font-bold text-slate-800">
+        {value || '—'}
+      </p>
+    </div>
+  );
+}

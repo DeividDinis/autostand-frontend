@@ -52,7 +52,14 @@ type FormShellProps = {
   toast: ToastApi;
 };
 
-function FormShell({ title, subtitle, children, onSubmit, loading, toast }: FormShellProps) {
+function FormShell({
+  title,
+  subtitle,
+  children,
+  onSubmit,
+  loading,
+  toast,
+}: FormShellProps) {
   return (
     <>
       <PageHeader
@@ -69,7 +76,10 @@ function FormShell({ title, subtitle, children, onSubmit, loading, toast }: Form
         }
       />
 
-      <form onSubmit={onSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <form
+        onSubmit={onSubmit}
+        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+      >
         <div className="grid gap-5 md:grid-cols-2">{children}</div>
         <div className="mt-6 flex justify-end border-t border-slate-100 pt-5">
           <Button type="submit" loading={loading}>
@@ -79,7 +89,11 @@ function FormShell({ title, subtitle, children, onSubmit, loading, toast }: Form
       </form>
 
       {toast.toast && (
-        <Toast message={toast.toast.message} type={toast.toast.type} onClose={toast.clear} />
+        <Toast
+          message={toast.toast.message}
+          type={toast.toast.type}
+          onClose={toast.clear}
+        />
       )}
     </>
   );
@@ -95,7 +109,12 @@ type InputProps = {
 function Input({ reg, error, type = 'text', placeholder }: InputProps) {
   return (
     <div>
-      <input {...reg} type={type} placeholder={placeholder} className={inputClass} />
+      <input
+        {...reg}
+        type={type}
+        placeholder={placeholder}
+        className={inputClass}
+      />
       {error && <div className="mt-1 text-xs text-red-600">{error}</div>}
     </div>
   );
@@ -119,10 +138,16 @@ export function VehicleFormPage() {
     try {
       if (edit) await vehiclesApi.update(Number(id), data);
       else await vehiclesApi.create({ ...data, status: 'AVAILABLE' });
-      toast.success(edit ? 'Veículo atualizado com sucesso.' : 'Veículo criado com sucesso.');
+      toast.success(
+        edit ? 'Veículo atualizado com sucesso.' : 'Veículo criado com sucesso.'
+      );
       window.setTimeout(() => nav('/vehicles'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível guardar o veículo.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível guardar o veículo.'
+      );
     }
   };
 
@@ -134,7 +159,10 @@ export function VehicleFormPage() {
       loading={isSubmitting}
       toast={toast}
     >
-      <Field label="Stand" error={errors.standId?.message as string | undefined}>
+      <Field
+        label="Stand"
+        error={errors.standId?.message as string | undefined}
+      >
         <Input reg={register('standId')} type="number" placeholder="1" />
       </Field>
       <Field label="Marca" error={errors.brand?.message as string | undefined}>
@@ -146,7 +174,10 @@ export function VehicleFormPage() {
       <Field label="Ano" error={errors.year?.message as string | undefined}>
         <Input reg={register('year')} type="number" placeholder="2024" />
       </Field>
-      <Field label="Matrícula" error={errors.plate?.message as string | undefined}>
+      <Field
+        label="Matrícula"
+        error={errors.plate?.message as string | undefined}
+      >
         <Input reg={register('plate')} placeholder="LD-45-23-AB" />
       </Field>
       <Field label="VIN" error={errors.vin?.message as string | undefined}>
@@ -175,13 +206,25 @@ export function VehicleFormPage() {
         <Input reg={register('mileage')} type="number" placeholder="15000" />
       </Field>
       <Field label="Preço de venda">
-        <Input reg={register('salePrice')} type="number" placeholder="35000000" />
+        <Input
+          reg={register('salePrice')}
+          type="number"
+          placeholder="35000000"
+        />
       </Field>
       <Field label="Preço diário de aluguer">
-        <Input reg={register('rentalDailyRate')} type="number" placeholder="150000" />
+        <Input
+          reg={register('rentalDailyRate')}
+          type="number"
+          placeholder="150000"
+        />
       </Field>
       <Field label="Descrição">
-        <textarea {...register('description')} className={`${inputClass} min-h-24`} placeholder="Descrição do veículo..." />
+        <textarea
+          {...register('description')}
+          className={`${inputClass} min-h-24`}
+          placeholder="Descrição do veículo..."
+        />
       </Field>
     </FormShell>
   );
@@ -202,22 +245,42 @@ export function ClientFormPage() {
       toast.success('Cliente criado com sucesso.');
       window.setTimeout(() => nav('/clients'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível criar o cliente.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível criar o cliente.'
+      );
     }
   };
 
   return (
-    <FormShell title="Novo cliente" subtitle="Regista os dados do cliente" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
+    <FormShell
+      title="Novo cliente"
+      subtitle="Regista os dados do cliente"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
       <Field label="Nome" error={errors.name?.message as string | undefined}>
         <Input reg={register('name')} placeholder="João Manuel" />
       </Field>
-      <Field label="Telefone" error={errors.phone?.message as string | undefined}>
+      <Field
+        label="Telefone"
+        error={errors.phone?.message as string | undefined}
+      >
         <Input reg={register('phone')} placeholder="923000000" />
       </Field>
-      <Field label="Email" error={errors.email?.message as string | undefined}>
-        <Input reg={register('email')} type="email" placeholder="joao@email.com" />
+      <Field label="E-mail" error={errors.email?.message as string | undefined}>
+        <Input
+          reg={register('email')}
+          type="email"
+          placeholder="joao@email.com"
+        />
       </Field>
-      <Field label="Documento" error={errors.document?.message as string | undefined}>
+      <Field
+        label="Documento"
+        error={errors.document?.message as string | undefined}
+      >
         <Input reg={register('document')} placeholder="000000000LA000" />
       </Field>
       <Field label="Endereço">
@@ -238,16 +301,29 @@ export function StandFormPage() {
 
   const submit = async (data: StandForm) => {
     try {
-      await standsApi.create({ ...data, parentStandId: data.parentStandId || null });
+      await standsApi.create({
+        ...data,
+        parentStandId: data.parentStandId || null,
+      });
       toast.success('Stand criado com sucesso.');
       window.setTimeout(() => nav('/stands'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível criar o stand.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível criar o stand.'
+      );
     }
   };
 
   return (
-    <FormShell title="Novo stand" subtitle="Cria um stand principal ou substand" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
+    <FormShell
+      title="Novo stand"
+      subtitle="Cria um stand principal ou substand"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
       <Field label="Nome" error={errors.name?.message as string | undefined}>
         <Input reg={register('name')} placeholder="AutoStand Talatona" />
       </Field>
@@ -261,7 +337,11 @@ export function StandFormPage() {
         <Input reg={register('address')} placeholder="Talatona" />
       </Field>
       <Field label="ID do stand pai">
-        <Input reg={register('parentStandId')} type="number" placeholder="Vazio para stand principal" />
+        <Input
+          reg={register('parentStandId')}
+          type="number"
+          placeholder="Vazio para stand principal"
+        />
       </Field>
     </FormShell>
   );
@@ -282,22 +362,44 @@ export function ProcessFormPage() {
       toast.success('Processo criado com sucesso.');
       window.setTimeout(() => nav('/processes'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível criar o processo.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível criar o processo.'
+      );
     }
   };
 
   return (
-    <FormShell title="Novo processo" subtitle="Inicia uma operação de venda ou aluguer" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
-      <Field label="Veículo" error={errors.vehicleId?.message as string | undefined}>
+    <FormShell
+      title="Novo processo"
+      subtitle="Inicia uma operação de venda ou aluguer"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
+      <Field
+        label="Veículo"
+        error={errors.vehicleId?.message as string | undefined}
+      >
         <Input reg={register('vehicleId')} type="number" placeholder="15" />
       </Field>
-      <Field label="Cliente" error={errors.clientId?.message as string | undefined}>
+      <Field
+        label="Cliente"
+        error={errors.clientId?.message as string | undefined}
+      >
         <Input reg={register('clientId')} type="number" placeholder="5" />
       </Field>
-      <Field label="Stand" error={errors.standId?.message as string | undefined}>
+      <Field
+        label="Stand"
+        error={errors.standId?.message as string | undefined}
+      >
         <Input reg={register('standId')} type="number" placeholder="1" />
       </Field>
-      <Field label="Gestor" error={errors.managerId?.message as string | undefined}>
+      <Field
+        label="Gestor"
+        error={errors.managerId?.message as string | undefined}
+      >
         <Input reg={register('managerId')} type="number" placeholder="3" />
       </Field>
       <Field label="Tipo" error={errors.type?.message as string | undefined}>
@@ -326,18 +428,33 @@ export function PaymentFormPage() {
     try {
       await paymentsApi.create({
         ...data,
-        ...(data.installmentId === undefined ? {} : { installmentId: data.installmentId }),
+        ...(data.installmentId === undefined
+          ? {}
+          : { installmentId: data.installmentId }),
       });
       toast.success('Pagamento registado com sucesso.');
       window.setTimeout(() => nav('/payments'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível registar o pagamento.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível registar o pagamento.'
+      );
     }
   };
 
   return (
-    <FormShell title="Registar pagamento" subtitle="A API calcula o estado financeiro" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
-      <Field label="Contrato" error={errors.contractId?.message as string | undefined}>
+    <FormShell
+      title="Registar pagamento"
+      subtitle="A API calcula o estado financeiro"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
+      <Field
+        label="Contrato"
+        error={errors.contractId?.message as string | undefined}
+      >
         <Input reg={register('contractId')} type="number" placeholder="10" />
       </Field>
       <Field label="Prestação">
@@ -346,7 +463,10 @@ export function PaymentFormPage() {
       <Field label="Valor" error={errors.amount?.message as string | undefined}>
         <Input reg={register('amount')} type="number" placeholder="1000000" />
       </Field>
-      <Field label="Método" error={errors.method?.message as string | undefined}>
+      <Field
+        label="Método"
+        error={errors.method?.message as string | undefined}
+      >
         <select {...register('method')} className={inputClass}>
           <option value="CASH">Numerário</option>
           <option value="TRANSFER">Transferência</option>
@@ -379,12 +499,22 @@ export function InstallmentFormPage() {
       toast.success('Prestação criada com sucesso.');
       window.setTimeout(() => nav('/installments'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível criar a prestação.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível criar a prestação.'
+      );
     }
   };
 
   return (
-    <FormShell title="Nova prestação" subtitle="Adiciona uma prestação ao contrato" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
+    <FormShell
+      title="Nova prestação"
+      subtitle="Adiciona uma prestação ao contrato"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
       <Field label="Contrato">
         <Input reg={register('contractId')} type="number" />
       </Field>
@@ -416,12 +546,22 @@ export function ReturnFormPage() {
       toast.success('Devolução registada com sucesso.');
       window.setTimeout(() => nav('/rental-returns'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível registar a devolução.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível registar a devolução.'
+      );
     }
   };
 
   return (
-    <FormShell title="Registar devolução" subtitle="A API atualiza o estado do veículo" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
+    <FormShell
+      title="Registar devolução"
+      subtitle="A API atualiza o estado do veículo"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
       <Field label="Contrato">
         <Input reg={register('contractId')} type="number" />
       </Field>
@@ -435,7 +575,10 @@ export function ReturnFormPage() {
         <Input reg={register('condition')} placeholder="GOOD" />
       </Field>
       <Field label="Danos">
-        <textarea {...register('damages')} className={`${inputClass} min-h-24`} />
+        <textarea
+          {...register('damages')}
+          className={`${inputClass} min-h-24`}
+        />
       </Field>
       <Field label="Notas">
         <textarea {...register('notes')} className={`${inputClass} min-h-24`} />
@@ -460,22 +603,43 @@ export function TransferFormPage() {
 
   const submit = async (data: TransferForm) => {
     try {
-      await transfersApi.create({ ...data, ...(ownStandId ? { fromStandId: ownStandId } : {}) });
+      await transfersApi.create({
+        ...data,
+        ...(ownStandId ? { fromStandId: ownStandId } : {}),
+      });
       toast.success('Transferência solicitada com sucesso.');
       window.setTimeout(() => nav('/transfers'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível solicitar a transferência.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível solicitar a transferência.'
+      );
     }
   };
 
   return (
-    <FormShell title="Nova transferência" subtitle="Solicita a movimentação de um veículo entre stands" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
+    <FormShell
+      title="Nova transferência"
+      subtitle="Solicita a movimentação de um veículo entre stands"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
       <Field label="Veículo">
         <Input reg={register('vehicleId')} type="number" />
       </Field>
       <Field label="Stand de origem">
-        <Input reg={register('fromStandId')} type="number" placeholder={ownStandId ? String(ownStandId) : 'ID do stand'} />
-        {ownStandId && <p className="mt-1 text-xs text-slate-400">A origem fica limitada à tua substand.</p>}
+        <Input
+          reg={register('fromStandId')}
+          type="number"
+          placeholder={ownStandId ? String(ownStandId) : 'ID do stand'}
+        />
+        {ownStandId && (
+          <p className="mt-1 text-xs text-slate-400">
+            A origem fica limitada à tua substand.
+          </p>
+        )}
       </Field>
       <Field label="Stand de destino">
         <Input reg={register('toStandId')} type="number" />
@@ -505,12 +669,22 @@ export function UserFormPage() {
       toast.success('Utilizador criado com sucesso.');
       window.setTimeout(() => nav('/users'), 300);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível criar o utilizador.');
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível criar o utilizador.'
+      );
     }
   };
 
   return (
-    <FormShell title="Novo utilizador" subtitle="Define cargo e stands associados" onSubmit={handleSubmit(submit)} loading={isSubmitting} toast={toast}>
+    <FormShell
+      title="Novo utilizador"
+      subtitle="Define cargo e stands associados"
+      onSubmit={handleSubmit(submit)}
+      loading={isSubmitting}
+      toast={toast}
+    >
       <Field label="Nome">
         <Input reg={register('name')} />
       </Field>

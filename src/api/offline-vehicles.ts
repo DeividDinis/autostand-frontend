@@ -6,13 +6,70 @@ function photo(label: string, tone: string): string {
 }
 
 function photos(label: string, tone: string) {
-  return Array.from({ length: 8 }, (_, index) => photo(`${label} · Foto ${index + 1}`, tone));
+  return Array.from({ length: 8 }, (_, index) =>
+    photo(`${label} · Foto ${index + 1}`, tone)
+  );
 }
 
 export const OFFLINE_VEHICLES: Vehicle[] = [
-  { id: 101, standId: 1, brand: 'Toyota', model: 'Hilux', year: 2024, plate: 'LD-45-23-AB', vin: 'AUTOHILUX2024DEMO01', color: 'Preto', fuel: 'DIESEL', transmission: 'AUTOMATIC', mileage: 15000, salePrice: 35000000, rentalDailyRate: 150000, status: 'AVAILABLE', description: 'Toyota Hilux em excelente estado, pronta para venda.', photos: photos('Toyota Hilux', '#fee2e2'), stand: { id: 1, name: 'AutoStand Principal' } },
-  { id: 102, standId: 2, brand: 'Hyundai', model: 'Tucson', year: 2023, plate: 'LD-72-10-CD', vin: 'AUTOTUCSON2023DEMO02', color: 'Branco', fuel: 'GASOLINE', transmission: 'AUTOMATIC', mileage: 22000, salePrice: 28500000, rentalDailyRate: 120000, status: 'AVAILABLE', description: 'SUV confortável e versátil, disponível na Revendedora Talatona.', photos: photos('Hyundai Tucson', '#e0e7ff'), stand: { id: 2, name: 'Revendedora Talatona' } },
-  { id: 103, standId: 3, brand: 'Kia', model: 'Sportage', year: 2024, plate: 'LD-81-34-EF', vin: 'AUTOSPORTAGE2024DEMO03', color: 'Cinza', fuel: 'HYBRID', transmission: 'AUTOMATIC', mileage: 9000, salePrice: 32500000, rentalDailyRate: 135000, status: 'AVAILABLE', description: 'Kia Sportage híbrido com baixo quilometragem.', photos: photos('Kia Sportage', '#dcfce7'), stand: { id: 3, name: 'Revendedora Viana' } },
+  {
+    id: 101,
+    standId: 1,
+    brand: 'Toyota',
+    model: 'Hilux',
+    year: 2024,
+    plate: 'LD-45-23-AB',
+    vin: 'AUTOHILUX2024DEMO01',
+    color: 'Preto',
+    fuel: 'DIESEL',
+    transmission: 'AUTOMATIC',
+    mileage: 15000,
+    salePrice: 35000000,
+    rentalDailyRate: 150000,
+    status: 'AVAILABLE',
+    description: 'Toyota Hilux em excelente estado, pronta para venda.',
+    photos: photos('Toyota Hilux', '#fee2e2'),
+    stand: { id: 1, name: 'AutoStand Principal' },
+  },
+  {
+    id: 102,
+    standId: 2,
+    brand: 'Hyundai',
+    model: 'Tucson',
+    year: 2023,
+    plate: 'LD-72-10-CD',
+    vin: 'AUTOTUCSON2023DEMO02',
+    color: 'Branco',
+    fuel: 'GASOLINE',
+    transmission: 'AUTOMATIC',
+    mileage: 22000,
+    salePrice: 28500000,
+    rentalDailyRate: 120000,
+    status: 'AVAILABLE',
+    description:
+      'SUV confortável e versátil, disponível na Revendedora Talatona.',
+    photos: photos('Hyundai Tucson', '#e0e7ff'),
+    stand: { id: 2, name: 'Revendedora Talatona' },
+  },
+  {
+    id: 103,
+    standId: 3,
+    brand: 'Kia',
+    model: 'Sportage',
+    year: 2024,
+    plate: 'LD-81-34-EF',
+    vin: 'AUTOSPORTAGE2024DEMO03',
+    color: 'Cinza',
+    fuel: 'HYBRID',
+    transmission: 'AUTOMATIC',
+    mileage: 9000,
+    salePrice: 32500000,
+    rentalDailyRate: 135000,
+    status: 'AVAILABLE',
+    description: 'Kia Sportage híbrido com baixo quilometragem.',
+    photos: photos('Kia Sportage', '#dcfce7'),
+    stand: { id: 3, name: 'Revendedora Viana' },
+  },
 ];
 
 export function offlineVehicleList(): { data: Vehicle[]; total: number } {

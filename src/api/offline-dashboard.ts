@@ -53,12 +53,39 @@ export function getOfflineDashboard(role: Role): DashboardData {
           { label: 'Revendedora Viana', value: 7200000 },
         ],
     recentActivity: isClient
-      ? [{ id: 1, type: 'PORTAL', description: 'Sessão de demonstração do cliente', createdAt: new Date().toISOString() }]
+      ? [
+          {
+            id: 1,
+            type: 'PORTAL',
+            description: 'Sessão de demonstração do cliente',
+            createdAt: new Date().toISOString(),
+          },
+        ]
       : [
-          { id: 1, type: 'VENDA', description: 'Contrato de venda #104 concluído', createdAt: new Date().toISOString() },
-          { id: 2, type: 'PAGAMENTO', description: 'Pagamento de 1 000 000 Kz registado', createdAt: new Date(Date.now() - 3600000).toISOString() },
-          { id: 3, type: 'TRANSFERÊNCIA', description: 'Transferência #23 aguarda aprovação', createdAt: new Date(Date.now() - 7200000).toISOString() },
-          { id: 4, type: 'VEÍCULO', description: 'Toyota Hilux adicionado ao inventário', createdAt: new Date(Date.now() - 86400000).toISOString() },
+          {
+            id: 1,
+            type: 'VENDA',
+            description: 'Contrato de venda #104 concluído',
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: 2,
+            type: 'PAGAMENTO',
+            description: 'Pagamento de 1 000 000 Kz registado',
+            createdAt: new Date(Date.now() - 3600000).toISOString(),
+          },
+          {
+            id: 3,
+            type: 'TRANSFERÊNCIA',
+            description: 'Transferência #23 aguarda aprovação',
+            createdAt: new Date(Date.now() - 7200000).toISOString(),
+          },
+          {
+            id: 4,
+            type: 'VEÍCULO',
+            description: 'Toyota Hilux adicionado ao inventário',
+            createdAt: new Date(Date.now() - 86400000).toISOString(),
+          },
         ],
   };
 }

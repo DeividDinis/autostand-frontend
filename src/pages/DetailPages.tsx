@@ -1,31 +1,480 @@
-import { useEffect, useState } from 'react'; import { useParams } from 'react-router-dom'; import { ArrowLeft, Check, X, CheckCircle2 } from 'lucide-react'; import { PageHeader } from '../components/PageHeader'; import { Field, inputClass } from '../components/Field'; import { LoadingState, ErrorState } from '../components/StateView'; import { Badge } from '../components/Badge'; import { Button } from '../components/Button'; import { money, date, labelize } from '../utils/format'; import { vehiclesApi } from '../api/vehicles.api'; import { clientsApi } from '../api/clients.api'; import { standsApi } from '../api/stands.api'; import { processesApi } from '../api/processes.api'; import { contractsApi } from '../api/contracts.api'; import { usersApi } from '../api/users.api'; import { transfersApi } from '../api/transfers.api'; import { useToast } from '../hooks/useToast';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { ArrowLeft, Check, X, CheckCircle2 } from 'lucide-react';
+import { PageHeader } from '../components/PageHeader';
+import { Field, inputClass } from '../components/Field';
+import { LoadingState, ErrorState } from '../components/StateView';
+import { Badge } from '../components/Badge';
+import { Button } from '../components/Button';
+import { money, date, labelize } from '../utils/format';
+import { vehiclesApi } from '../api/vehicles.api';
+import { clientsApi } from '../api/clients.api';
+import { standsApi } from '../api/stands.api';
+import { processesApi } from '../api/processes.api';
+import { contractsApi } from '../api/contracts.api';
+import { usersApi } from '../api/users.api';
+import { transfersApi } from '../api/transfers.api';
+import { useToast } from '../hooks/useToast';
 import { useAuth } from '../contexts/AuthContext';
 import { canApproveTransfer, canManageStand } from '../utils/permissions';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { standSchema } from '../schemas/forms'; import { Toast } from '../components/Toast';
-function Detail({title,subtitle,children,back='/dashboard'}:{title:string;subtitle?:string;children:React.ReactNode;back?:string}){return <><PageHeader title={title} subtitle={subtitle} action={<button onClick={()=>location.assign(back)} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold"><ArrowLeft size={16}/> Voltar</button>}/>{children}</>}
-export function VehicleDetailPage(){const {id}=useParams();const [data,setData]=useState<any>();const [error,setError]=useState('');useEffect(()=>{vehiclesApi.get(Number(id)).then(setData).catch(e=>setError(e.message))},[id]);if(error)return <ErrorState text={error}/>;if(!data)return <LoadingState/>;return <Detail title={`${data.brand} ${data.model}`} subtitle={`Veículo #${data.id}`} back="/vehicles"><div className="grid gap-6 lg:grid-cols-3"><Info title="Dados do veículo"><Row l="Matrícula" v={data.plate}/><Row l="VIN" v={data.vin}/><Row l="Ano" v={data.year}/><Row l="Cor" v={data.color}/><Row l="Combustível" v={labelize(data.fuel)}/><Row l="Transmissão" v={labelize(data.transmission)}/></Info><Info title="Operação"><Row l="Stand" v={data.stand?.name||data.standId}/><Row l="Estado" v={<Badge value={data.status}/>}/><Row l="Quilometragem" v={data.mileage?.toLocaleString('pt-AO')}/><Row l="Preço venda" v={money(data.salePrice)}/><Row l="Diária aluguer" v={money(data.rentalDailyRate)}/></Info><Info title="Histórico"><p className="text-sm text-slate-500">Processos, contratos, transferências e devoluções podem ser apresentados aqui com os recursos devolvidos pelo endpoint de detalhe do backend.</p></Info></div></Detail>}
-export function ClientDetailPage(){const {id}=useParams();const [d,setD]=useState<any>();const [e,setE]=useState('');useEffect(()=>{clientsApi.get(Number(id)).then(setD).catch(x=>setE(x.message))},[id]);if(e)return <ErrorState text={e}/>;if(!d)return <LoadingState/>;return <Detail title={d.name} subtitle={`Cliente #${d.id}`} back="/clients"><div className="grid gap-6 md:grid-cols-2"><Info title="Dados pessoais"><Row l="Telefone" v={d.phone}/><Row l="Email" v={d.email}/><Row l="Documento" v={d.document}/><Row l="Endereço" v={d.address}/></Info><Info title="Resumo"><Row l="Processos" v={d.processesCount}/><Row l="Contratos" v={d.contractsCount}/></Info></div></Detail>}
-export function StandDetailPage(){
-  const {id}=useParams();
-  const {user}=useAuth();
-  const [d,setD]=useState<any>();
-  const [e,setE]=useState('');
-  const [editing,setEditing]=useState(false);
-  const toast=useToast();
-  const {register,handleSubmit,reset,formState:{isSubmitting}}=useForm({resolver:zodResolver(standSchema)});
-  const load=()=>standsApi.get(Number(id)).then((data)=>{setD(data);reset({name:data.name,code:data.code,phone:data.phone||'',address:data.address||'',parentStandId:data.parentStandId||''})}).catch(x=>setE(x instanceof Error?x.message:'Não foi possível carregar o stand.'));
-  useEffect(()=>{load()},[id]);
-  if(e)return <ErrorState text={e}/>;
-  if(!d)return <LoadingState/>;
-  if(!canManageStand(user,d.id))return <ErrorState text="Não tens acesso a este stand." retry={load}/>;
-  const save=async(values:any)=>{try{await standsApi.update(d.id,user?.role === 'ADMIN_GLOBAL' ? {...values,parentStandId:values.parentStandId||null} : {name:values.name,code:values.code,phone:values.phone,address:values.address});toast.success('Stand atualizado com sucesso.');setEditing(false);await load()}catch(x){toast.error(x instanceof Error?x.message:'Não foi possível atualizar o stand.')}};
-  return <Detail title={d.name} subtitle={`Stand #${d.id} · ${d.code}`} back="/stands"><div className="space-y-6">{editing?<form onSubmit={handleSubmit(save)} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="grid gap-5 md:grid-cols-2"><Field label="Nome"><Input reg={register('name')}/></Field><Field label="Código"><Input reg={register('code')}/></Field><Field label="Telefone"><Input reg={register('phone')}/></Field><Field label="Endereço"><Input reg={register('address')}/></Field>{user?.role === 'ADMIN_GLOBAL' && <Field label="ID do stand pai"><Input reg={register('parentStandId')} type="number"/></Field>}</div><div className="mt-6 flex justify-end gap-2"><Button type="button" variant="secondary" onClick={()=>setEditing(false)}>Cancelar</Button><Button type="submit" loading={isSubmitting}>Guardar</Button></div></form>:<div className="grid gap-6 md:grid-cols-2"><Info title="Informação"><Row l="Telefone" v={d.phone}/><Row l="Endereço" v={d.address}/><Row l="Stand pai" v={d.parentStand?.name||d.parentStandId||'Principal'}/><Row l="Estado" v={<Badge value={d.status||'ACTIVE'}/>}/></Info><Info title="Indicadores"><Row l="Veículos" v={d.vehicleCount}/></Info></div>}<div className="flex justify-end">{!editing&&<Button onClick={()=>setEditing(true)} variant="secondary">Gerir substand</Button>}</div>{toast.toast&&<Toast message={toast.toast.message} type={toast.toast.type} onClose={toast.clear}/>}</div></Detail>
+import { standSchema } from '../schemas/forms';
+import { Toast } from '../components/Toast';
+function Detail({
+  title,
+  subtitle,
+  children,
+  back = '/dashboard',
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  back?: string;
+}) {
+  return (
+    <>
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        action={
+          <button
+            onClick={() => location.assign(back)}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold"
+          >
+            <ArrowLeft size={16} /> Voltar
+          </button>
+        }
+      />
+      {children}
+    </>
+  );
 }
-export function GenericDetailPage({kind}:{kind:'process'|'contract'|'user'}){const {id}=useParams();const [d,setD]=useState<any>();const [e,setE]=useState('');useEffect(()=>{const p=kind==='process'?processesApi.get(Number(id)):kind==='contract'?contractsApi.get(Number(id)):usersApi.get(Number(id));p.then(setD).catch(x=>setE(x.message))},[id,kind]);if(e)return <ErrorState text={e}/>;if(!d)return <LoadingState/>;return <Detail title={`${kind==='process'?'Processo':kind==='contract'?'Contrato':'Utilizador'} #${d.id}`} subtitle={kind==='user'?d.email:labelize(d.type)} back={`/${kind==='process'?'processes':kind==='contract'?'contracts':'users'}`}><div className="grid gap-6 lg:grid-cols-3"><Info title="Dados principais"><Row l="ID" v={d.id}/><Row l="Tipo" v={<Badge value={d.type||d.role}/>}/><Row l="Estado" v={<Badge value={d.status||'ACTIVE'}/>}/><Row l="Stand" v={d.stand?.name||d.standId}/><Row l="Cliente" v={d.client?.name||d.clientId}/><Row l="Veículo" v={d.vehicle?`${d.vehicle.brand} ${d.vehicle.model}`:d.vehicleId}/></Info>{kind==='contract'&&<Info title="Valores"><Row l="Total" v={money(d.totalAmount)}/><Row l="Entrada" v={money(d.downPayment)}/><Row l="Pago" v={money(d.amountPaid)}/><Row l="Saldo" v={money(d.balance)}/></Info>}<Info title="Detalhes"><pre className="overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-300">{JSON.stringify(d,null,2)}</pre></Info></div></Detail>}
-export function TransferDetailPage(){const {id}=useParams();const {user}=useAuth();const [d,setD]=useState<any>();const [e,setE]=useState('');const toast=useToast();const load=()=>transfersApi.get(Number(id)).then(setD).catch(x=>setE(x.message));useEffect(()=>{load()},[id]);if(e)return <ErrorState text={e}/>;if(!d)return <LoadingState/>;const canApprove = canApproveTransfer(user);const act=async(fn:any,msg:string)=>{try{await fn();toast.success(msg);await load()}catch(x){toast.error(x instanceof Error?x.message:'Operação não concluída.')}};return <Detail title={`Transferência #${d.id}`} subtitle="Fluxo de aprovação entre stands" back="/transfers"><div className="space-y-6"><div className="rounded-2xl border border-slate-200 bg-white p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-bold">{d.vehicle?`${d.vehicle.brand} ${d.vehicle.model}`:`Veículo #${d.vehicleId}`}</p><p className="mt-1 text-sm text-slate-400">{d.fromStand?.name||d.fromStandId} → {d.toStand?.name||d.toStandId}</p></div><Badge value={d.status}/></div><div className="my-8 flex items-center gap-2"><Step active={['PENDING','APPROVED','COMPLETED'].includes(d.status)} text="Solicitada"/><div className="h-px flex-1 bg-slate-200"/><Step active={['APPROVED','COMPLETED'].includes(d.status)} text="Aprovada"/><div className="h-px flex-1 bg-slate-200"/><Step active={d.status==='COMPLETED'} text="Concluída"/></div><div className="flex flex-wrap gap-2">{canApprove&&d.status==='PENDING'&&<><Button onClick={()=>act(()=>transfersApi.approve(d.id),'Transferência aprovada.') }><Check size={16}/> Aprovar</Button><Button variant="danger" onClick={()=>act(()=>transfersApi.reject(d.id,{notes:'Rejeitada pelo utilizador.'}),'Transferência rejeitada.') }><X size={16}/> Rejeitar</Button></>}{canApprove&&d.status==='APPROVED'&&<Button onClick={()=>act(()=>transfersApi.complete(d.id),'Transferência concluída.') }><CheckCircle2 size={16}/> Completar</Button>}</div></div>{toast.toast&&<Toast message={toast.toast.message} type={toast.toast.type} onClose={toast.clear}/>} </div></Detail>}
-function Info({title,children}:{title:string;children:React.ReactNode}){return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><h2 className="mb-4 font-bold">{title}</h2><div className="divide-y divide-slate-100">{children}</div></div>}
-function Row({l,v}:{l:string;v:React.ReactNode}){return <div className="flex items-center justify-between gap-4 py-3 text-sm"><span className="text-slate-400">{l}</span><span className="text-right font-medium text-slate-700">{v??'—'}</span></div>}
-function Input({reg,type='text'}:{reg:any;type?:string}){return <input {...reg} type={type} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none focus:border-red-400"/>}
-function Step({active,text}:{active:boolean;text:string}){return <div className={`flex items-center gap-2 text-xs font-semibold ${active?'text-slate-800':'text-slate-300'}`}><span className={`grid h-8 w-8 place-items-center rounded-full ${active?'bg-slate-950 text-white':'bg-slate-100'}`}>✓</span>{text}</div>}
+export function VehicleDetailPage() {
+  const { id } = useParams();
+  const [data, setData] = useState<any>();
+  const [error, setError] = useState('');
+  useEffect(() => {
+    vehiclesApi
+      .get(Number(id))
+      .then(setData)
+      .catch((e) => setError(e.message));
+  }, [id]);
+  if (error) return <ErrorState text={error} />;
+  if (!data) return <LoadingState />;
+  return (
+    <Detail
+      title={`${data.brand} ${data.model}`}
+      subtitle={`Veículo #${data.id}`}
+      back="/vehicles"
+    >
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Info title="Dados do veículo">
+          <Row l="Matrícula" v={data.plate} />
+          <Row l="VIN" v={data.vin} />
+          <Row l="Ano" v={data.year} />
+          <Row l="Cor" v={data.color} />
+          <Row l="Combustível" v={labelize(data.fuel)} />
+          <Row l="Transmissão" v={labelize(data.transmission)} />
+        </Info>
+        <Info title="Operação">
+          <Row l="Stand" v={data.stand?.name || data.standId} />
+          <Row l="Estado" v={<Badge value={data.status} />} />
+          <Row l="Quilometragem" v={data.mileage?.toLocaleString('pt-AO')} />
+          <Row l="Preço venda" v={money(data.salePrice)} />
+          <Row l="Diária aluguer" v={money(data.rentalDailyRate)} />
+        </Info>
+        <Info title="Histórico">
+          <p className="text-sm text-slate-500">
+            Processos, contratos, transferências e devoluções podem ser
+            apresentados aqui com os recursos devolvidos pelo endpoint de
+            detalhe do backend.
+          </p>
+        </Info>
+      </div>
+    </Detail>
+  );
+}
+export function ClientDetailPage() {
+  const { id } = useParams();
+  const [d, setD] = useState<any>();
+  const [e, setE] = useState('');
+  useEffect(() => {
+    clientsApi
+      .get(Number(id))
+      .then(setD)
+      .catch((x) => setE(x.message));
+  }, [id]);
+  if (e) return <ErrorState text={e} />;
+  if (!d) return <LoadingState />;
+  return (
+    <Detail title={d.name} subtitle={`Cliente #${d.id}`} back="/clients">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Info title="Dados pessoais">
+          <Row l="Telefone" v={d.phone} />
+          <Row l="E-mail" v={d.email} />
+          <Row l="Documento" v={d.document} />
+          <Row l="Endereço" v={d.address} />
+        </Info>
+        <Info title="Resumo">
+          <Row l="Processos" v={d.processesCount} />
+          <Row l="Contratos" v={d.contractsCount} />
+        </Info>
+      </div>
+    </Detail>
+  );
+}
+export function StandDetailPage() {
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [d, setD] = useState<any>();
+  const [e, setE] = useState('');
+  const [editing, setEditing] = useState(false);
+  const toast = useToast();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({ resolver: zodResolver(standSchema) });
+  const load = () =>
+    standsApi
+      .get(Number(id))
+      .then((data) => {
+        setD(data);
+        reset({
+          name: data.name,
+          code: data.code,
+          phone: data.phone || '',
+          address: data.address || '',
+          parentStandId: data.parentStandId || '',
+        });
+      })
+      .catch((x) =>
+        setE(
+          x instanceof Error ? x.message : 'Não foi possível carregar o stand.'
+        )
+      );
+  useEffect(() => {
+    load();
+  }, [id]);
+  if (e) return <ErrorState text={e} />;
+  if (!d) return <LoadingState />;
+  if (!canManageStand(user, d.id))
+    return <ErrorState text="Não tens acesso a este stand." retry={load} />;
+  const save = async (values: any) => {
+    try {
+      await standsApi.update(
+        d.id,
+        user?.role === 'ADMIN_GLOBAL'
+          ? { ...values, parentStandId: values.parentStandId || null }
+          : {
+              name: values.name,
+              code: values.code,
+              phone: values.phone,
+              address: values.address,
+            }
+      );
+      toast.success('Stand atualizado com sucesso.');
+      setEditing(false);
+      await load();
+    } catch (x) {
+      toast.error(
+        x instanceof Error ? x.message : 'Não foi possível atualizar o stand.'
+      );
+    }
+  };
+  return (
+    <Detail
+      title={d.name}
+      subtitle={`Stand #${d.id} · ${d.code}`}
+      back="/stands"
+    >
+      <div className="space-y-6">
+        {editing ? (
+          <form
+            onSubmit={handleSubmit(save)}
+            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+          >
+            <div className="grid gap-5 md:grid-cols-2">
+              <Field label="Nome">
+                <Input reg={register('name')} />
+              </Field>
+              <Field label="Código">
+                <Input reg={register('code')} />
+              </Field>
+              <Field label="Telefone">
+                <Input reg={register('phone')} />
+              </Field>
+              <Field label="Endereço">
+                <Input reg={register('address')} />
+              </Field>
+              {user?.role === 'ADMIN_GLOBAL' && (
+                <Field label="ID do stand pai">
+                  <Input reg={register('parentStandId')} type="number" />
+                </Field>
+              )}
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setEditing(false)}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" loading={isSubmitting}>
+                Guardar
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            <Info title="Informação">
+              <Row l="Telefone" v={d.phone} />
+              <Row l="Endereço" v={d.address} />
+              <Row
+                l="Stand pai"
+                v={d.parentStand?.name || d.parentStandId || 'Principal'}
+              />
+              <Row l="Estado" v={<Badge value={d.status || 'ACTIVE'} />} />
+            </Info>
+            <Info title="Indicadores">
+              <Row l="Veículos" v={d.vehicleCount} />
+            </Info>
+          </div>
+        )}
+        <div className="flex justify-end">
+          {!editing && (
+            <Button onClick={() => setEditing(true)} variant="secondary">
+              Gerir substand
+            </Button>
+          )}
+        </div>
+        {toast.toast && (
+          <Toast
+            message={toast.toast.message}
+            type={toast.toast.type}
+            onClose={toast.clear}
+          />
+        )}
+      </div>
+    </Detail>
+  );
+}
+export function GenericDetailPage({
+  kind,
+}: {
+  kind: 'process' | 'contract' | 'user';
+}) {
+  const { id } = useParams();
+  const [d, setD] = useState<any>();
+  const [e, setE] = useState('');
+  useEffect(() => {
+    const p =
+      kind === 'process'
+        ? processesApi.get(Number(id))
+        : kind === 'contract'
+          ? contractsApi.get(Number(id))
+          : usersApi.get(Number(id));
+    p.then(setD).catch((x) => setE(x.message));
+  }, [id, kind]);
+  if (e) return <ErrorState text={e} />;
+  if (!d) return <LoadingState />;
+  return (
+    <Detail
+      title={`${kind === 'process' ? 'Processo' : kind === 'contract' ? 'Contrato' : 'Utilizador'} #${d.id}`}
+      subtitle={kind === 'user' ? d.email : labelize(d.type)}
+      back={`/${kind === 'process' ? 'processes' : kind === 'contract' ? 'contracts' : 'users'}`}
+    >
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Info title="Dados principais">
+          <Row l="ID" v={d.id} />
+          <Row l="Tipo" v={<Badge value={d.type || d.role} />} />
+          <Row l="Estado" v={<Badge value={d.status || 'ACTIVE'} />} />
+          <Row l="Stand" v={d.stand?.name || d.standId} />
+          <Row l="Cliente" v={d.client?.name || d.clientId} />
+          <Row
+            l="Veículo"
+            v={
+              d.vehicle ? `${d.vehicle.brand} ${d.vehicle.model}` : d.vehicleId
+            }
+          />
+        </Info>
+        {kind === 'contract' && (
+          <Info title="Valores">
+            <Row l="Total" v={money(d.totalAmount)} />
+            <Row l="Entrada" v={money(d.downPayment)} />
+            <Row l="Pago" v={money(d.amountPaid)} />
+            <Row l="Saldo" v={money(d.balance)} />
+          </Info>
+        )}
+        <Info title="Detalhes">
+          <pre className="overflow-auto rounded-xl bg-slate-950 p-4 text-xs text-slate-300">
+            {JSON.stringify(d, null, 2)}
+          </pre>
+        </Info>
+      </div>
+    </Detail>
+  );
+}
+export function TransferDetailPage() {
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [d, setD] = useState<any>();
+  const [e, setE] = useState('');
+  const toast = useToast();
+  const load = () =>
+    transfersApi
+      .get(Number(id))
+      .then(setD)
+      .catch((x) => setE(x.message));
+  useEffect(() => {
+    load();
+  }, [id]);
+  if (e) return <ErrorState text={e} />;
+  if (!d) return <LoadingState />;
+  const canApprove = canApproveTransfer(user);
+  const act = async (fn: any, msg: string) => {
+    try {
+      await fn();
+      toast.success(msg);
+      await load();
+    } catch (x) {
+      toast.error(x instanceof Error ? x.message : 'Operação não concluída.');
+    }
+  };
+  return (
+    <Detail
+      title={`Transferência #${d.id}`}
+      subtitle="Fluxo de aprovação entre stands"
+      back="/transfers"
+    >
+      <div className="space-y-6">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-bold">
+                {d.vehicle
+                  ? `${d.vehicle.brand} ${d.vehicle.model}`
+                  : `Veículo #${d.vehicleId}`}
+              </p>
+              <p className="mt-1 text-sm text-slate-400">
+                {d.fromStand?.name || d.fromStandId} →{' '}
+                {d.toStand?.name || d.toStandId}
+              </p>
+            </div>
+            <Badge value={d.status} />
+          </div>
+          <div className="my-8 flex items-center gap-2">
+            <Step
+              active={['PENDING', 'APPROVED', 'COMPLETED'].includes(d.status)}
+              text="Solicitada"
+            />
+            <div className="h-px flex-1 bg-slate-200" />
+            <Step
+              active={['APPROVED', 'COMPLETED'].includes(d.status)}
+              text="Aprovada"
+            />
+            <div className="h-px flex-1 bg-slate-200" />
+            <Step active={d.status === 'COMPLETED'} text="Concluída" />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {canApprove && d.status === 'PENDING' && (
+              <>
+                <Button
+                  onClick={() =>
+                    act(
+                      () => transfersApi.approve(d.id),
+                      'Transferência aprovada.'
+                    )
+                  }
+                >
+                  <Check size={16} /> Aprovar
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() =>
+                    act(
+                      () =>
+                        transfersApi.reject(d.id, {
+                          notes: 'Rejeitada pelo utilizador.',
+                        }),
+                      'Transferência rejeitada.'
+                    )
+                  }
+                >
+                  <X size={16} /> Rejeitar
+                </Button>
+              </>
+            )}
+            {canApprove && d.status === 'APPROVED' && (
+              <Button
+                onClick={() =>
+                  act(
+                    () => transfersApi.complete(d.id),
+                    'Transferência concluída.'
+                  )
+                }
+              >
+                <CheckCircle2 size={16} /> Completar
+              </Button>
+            )}
+          </div>
+        </div>
+        {toast.toast && (
+          <Toast
+            message={toast.toast.message}
+            type={toast.toast.type}
+            onClose={toast.clear}
+          />
+        )}{' '}
+      </div>
+    </Detail>
+  );
+}
+function Info({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="mb-4 font-bold">{title}</h2>
+      <div className="divide-y divide-slate-100">{children}</div>
+    </div>
+  );
+}
+function Row({ l, v }: { l: string; v: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3 text-sm">
+      <span className="text-slate-400">{l}</span>
+      <span className="text-right font-medium text-slate-700">{v ?? '—'}</span>
+    </div>
+  );
+}
+function Input({ reg, type = 'text' }: { reg: any; type?: string }) {
+  return (
+    <input
+      {...reg}
+      type={type}
+      className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 outline-none focus:border-red-400"
+    />
+  );
+}
+function Step({ active, text }: { active: boolean; text: string }) {
+  return (
+    <div
+      className={`flex items-center gap-2 text-xs font-semibold ${active ? 'text-slate-800' : 'text-slate-300'}`}
+    >
+      <span
+        className={`grid h-8 w-8 place-items-center rounded-full ${active ? 'bg-slate-950 text-white' : 'bg-slate-100'}`}
+      >
+        ✓
+      </span>
+      {text}
+    </div>
+  );
+}
